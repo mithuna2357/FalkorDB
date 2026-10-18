@@ -167,6 +167,7 @@ RETURN count(*) AS folded
 MARK_BOTS = """
 MATCH (p:Person)
 SET p.is_bot = (p.key CONTAINS '[bot]' OR coalesce(p.login,'') ENDS WITH '[bot]' OR coalesce(p.name,'') ENDS WITH '[bot]'
+                OR p.key STARTS WITH 'email:noreply@' OR p.key STARTS WITH 'email:no-reply@'
                 OR p.key ENDS WITH '-ai' OR p.key ENDS WITH '-bot' OR p.key ENDS WITH '-agent' OR p.key STARTS WITH 'copilot' OR p.key CONTAINS 'pull-request-reviewer'
                 OR p.key IN ['dependabot', 'renovate', 'github-actions', 'claude', 'anthropic-code-agent', 'coderabbitai', 'copilot',
                              'copilot-pull-request-reviewer', 'cubic-dev-ai', 'overcut-ai', 'sourcery-ai', 'codecov', 'codecov-commenter', 'greptile-apps', 'ellipsis-dev',
