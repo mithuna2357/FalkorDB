@@ -1,0 +1,7 @@
+Suppress hydration warnings from extension-injected attributes
+
+Browser extensions (e.g. Grammarly) add attributes to <html>/<body>
+before React hydrates, triggering a dev-mode hydration mismatch.
+suppressHydrationWarning only covers these two elements' own attributes.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>

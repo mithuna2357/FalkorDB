@@ -1,0 +1,44 @@
+{
+  "answer": "**Person A** should review this change, with **Person B** as backup.\n\n- Person A authored **61%** of changes to the vector index code in the last year and reviewed **40 PRs** there.\n- Person B is the next highest PageRank score over the review subgraph.\n\nOwnership moved recently: a newer commit **SUPERSEDES** the earlier fact about who last touched this path.",
+  "sources": [
+    { "type": "PR", "id": "1234", "title": "Vector index: fix ARM crash", "url": "https://github.com/FalkorDB/FalkorDB/pull/1234" },
+    { "type": "Issue", "id": "1250", "title": "Crash on ARM after vector index change", "url": "https://github.com/FalkorDB/FalkorDB/issues/1250" },
+    { "type": "Commit", "id": "a1b2c3d", "title": "Refactor vector index insert path", "url": "https://github.com/FalkorDB/FalkorDB/commit/a1b2c3d" },
+    { "type": "Commit", "id": "e4f5a6b", "title": "Vector index: new distance function", "url": "https://github.com/FalkorDB/FalkorDB/commit/e4f5a6b" },
+    { "type": "Person", "id": "person-a", "title": "Person A", "url": "https://github.com/FalkorDB" },
+    { "type": "Person", "id": "person-b", "title": "Person B", "url": "https://github.com/FalkorDB" }
+  ],
+  "path": {
+    "nodes": [
+      { "id": "n1", "label": "Person", "title": "Person A" },
+      { "id": "n2", "label": "Person", "title": "Person B" },
+      { "id": "n3", "label": "Commit", "title": "a1b2c3d" },
+      { "id": "n4", "label": "Commit", "title": "e4f5a6b" },
+      { "id": "n5", "label": "File", "title": "src/index/vector_index.c" },
+      { "id": "n6", "label": "PR", "title": "#1234" },
+      { "id": "n7", "label": "Issue", "title": "#1250" },
+      { "id": "n8", "label": "Repo", "title": "FalkorDB/FalkorDB" }
+    ],
+    "edges": [
+      { "from": "n1", "to": "n3", "type": "AUTHORED" },
+      { "from": "n1", "to": "n4", "type": "AUTHORED" },
+      { "from": "n3", "to": "n5", "type": "TOUCHED" },
+      { "from": "n4", "to": "n5", "type": "TOUCHED" },
+      { "from": "n1", "to": "n6", "type": "AUTHORED" },
+      { "from": "n2", "to": "n6", "type": "REVIEWED" },
+      { "from": "n6", "to": "n7", "type": "CLOSES" },
+      { "from": "n6", "to": "n8", "type": "MENTIONS" },
+      { "from": "n4", "to": "n3", "type": "SUPERSEDES" }
+    ]
+  },
+  "cypher": [
+    "MATCH (f:File) WHERE f.path STARTS WITH 'src/index/vector' RETURN f",
+    "MATCH (p:Person)-[:AUTHORED]->(c:Commit)-[:TOUCHED]->(f:File) WHERE f.path STARTS WITH 'src/index/vector' RETURN p.name, count(c) AS commits ORDER BY commits DESC",
+    "CALL algo.pageRank('Person', 'REVIEWED') YIELD node, score RETURN node.name, score ORDER BY score DESC LIMIT 5"
+  ],
+  "toolCalls": [
+    { "tool": "run_cypher", "args": { "query": "MATCH (f:File) WHERE f.path STARTS WITH 'src/index/vector' RETURN f" }, "ms": 18 },
+    { "tool": "who_knows", "args": { "path": "src/index/vector" }, "ms": 42 },
+    { "tool": "remember", "args": {}, "ms": 9 }
+  ]
+}
