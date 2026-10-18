@@ -63,14 +63,17 @@ export function BuildBrainForm({
   size = "default",
   className,
 }: {
-  onBuild: (org: string) => void
+  onBuild: (org: string, repos?: string[]) => void
   building: boolean
   size?: "default" | "lg"
   className?: string
 }) {
   const [org, setOrg] = useState("")
-  const clean = org.trim().replace(/^https?:\/\/github\.com\//i, "").replace(/\/.*$/, "")
-  const valid = ORG_RE.test(clean)
+  // "FalkorDB", "github.com/FalkorDB" or "github.com/google-ai-edge/gallery" (the last one builds only that repo)
+  const path = org.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/[?#].*$/, "").replace(/\/+$/, "")
+  const [clean, repoName] = path.split("/")
+  const repo = repoName && /^[\w.-]+$/.test(repoName) ? `${clean}/${repoName}` : undefined
+  const valid = ORG_RE.test(clean ?? "")
 
   return (
     <form
@@ -78,7 +81,7 @@ export function BuildBrainForm({
       onSubmit={(e) => {
         e.preventDefault()
         if (valid && !building) {
-          onBuild(clean)
+          onBuild(clean, repo ? [repo] : undefined)
           setOrg("")
         }
       }}
@@ -86,8 +89,8 @@ export function BuildBrainForm({
       <Input
         value={org}
         onChange={(e) => setOrg(e.target.value)}
-        placeholder="GitHub org or user — a name like FalkorDB, or paste github.com/FalkorDB"
-        aria-label="GitHub organisation or user name, or a github.com URL"
+        placeholder="GitHub org or user, like FalkorDB. Or paste a github.com link to an org or a single repo"
+        aria-label="GitHub organisation or user name, or a github.com link to an org or a repository"
         className={cn("font-mono", size === "lg" && "h-11 text-base")}
         disabled={building}
       />

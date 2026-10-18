@@ -63,7 +63,7 @@ export async function ask(org: string, question: string): Promise<AskResponse> {
   return request<AskResponse>("/api/ask", { org, question })
 }
 
-export async function sync(org: string): Promise<SyncResponse> {
+export async function sync(org: string, repos?: string[]): Promise<SyncResponse> {
   if (DATA_MODE === "fixtures") {
     await wait(1500)
     const s = syncFixture as SyncResponse
@@ -78,10 +78,10 @@ export async function sync(org: string): Promise<SyncResponse> {
     }
     return { ...s }
   }
-  const first = await request<SyncResponse & { status?: string }>("/api/sync", { org })
+  const first = await request<SyncResponse & { status?: string }>("/api/sync", repos?.length ? { org, repos } : { org })
   if (first.status !== "building") return first
   // New org: the backend started a full ingestion. Poll its status until the brain is ready (a few minutes).
-  setBuildLog([`starting ingestion for ${org}`])
+  setBuildLog([`starting ingestion for ${repos?.length ? repos.join(", ") : org}`])
   try {
     for (;;) {
       await wait(2500)

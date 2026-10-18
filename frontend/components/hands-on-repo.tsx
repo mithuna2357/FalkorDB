@@ -105,12 +105,12 @@ export function HandsOnRepo() {
   const current = orgs.find((o) => activeOrg && sameOrg(o.org, activeOrg)) ?? null
 
   // ---- Build brain (POST /api/sync for the new org, then GET /api/orgs) ----
-  const build = async (org: string) => {
+  const build = async (org: string, repos?: string[]) => {
     setBuilding({ org, startedAt: Date.now() })
     setBuildError(null)
     setReady(null)
     try {
-      await sync(org)
+      await sync(org, repos)
       const list = await refreshOrgs()
       const found = list?.find((o) => sameOrg(o.org, org))
       setActiveOrg(found?.org ?? org)
