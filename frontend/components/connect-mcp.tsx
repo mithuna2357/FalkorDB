@@ -165,7 +165,7 @@ export function ConnectMcpDialog({ open, onClose }: { open: boolean; onClose: ()
             </header>
 
             <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[auto_minmax(0,1fr)] overflow-hidden md:grid-cols-[220px_1fr] md:grid-rows-[minmax(0,1fr)]">
-              <nav data-lenis-prevent className="flex min-h-0 gap-1 overflow-x-auto border-b p-2 md:flex-col md:overflow-y-auto md:border-r md:border-b-0" aria-label="Clients">
+              <nav data-lenis-prevent className="thin-scroll flex min-h-0 gap-1 overflow-x-auto border-b p-2 md:flex-col md:overflow-y-auto md:border-r md:border-b-0" aria-label="Clients">
                 {CLIENTS.map((c) => (
                   <button
                     key={c.id}
@@ -180,7 +180,7 @@ export function ConnectMcpDialog({ open, onClose }: { open: boolean; onClose: ()
                 ))}
               </nav>
 
-              <div data-lenis-prevent className="min-h-0 space-y-4 overflow-y-auto overscroll-contain p-5">
+              <div data-lenis-prevent className="thin-scroll min-h-0 space-y-4 overflow-y-auto overscroll-contain p-5">
                 <section className="rounded-xl border bg-card/60 p-4 text-sm">
                   <h3 className="mb-1 font-medium">Before you start (once)</h3>
                   <ol className="list-decimal space-y-1 pl-5 text-muted-foreground">
@@ -223,7 +223,7 @@ export function ConnectMcpDialog({ open, onClose }: { open: boolean; onClose: ()
                   </div>
                   <p className="mb-2 font-mono text-xs text-muted-foreground">{client.where}</p>
                   <div className="group relative">
-                    <pre className="overflow-x-auto rounded-lg border bg-black/40 p-3 pr-10 font-mono text-xs leading-relaxed text-[#9be9a8]">
+                    <pre className="thin-scroll overflow-x-auto rounded-lg border bg-black/40 p-3 pr-10 font-mono text-xs leading-relaxed text-[#9be9a8]">
                       <code>{snippet}</code>
                     </pre>
                     <button onClick={copy} className="absolute top-2 right-2 rounded p-1 text-muted-foreground hover:bg-secondary hover:text-foreground" aria-label="Copy">
@@ -244,7 +244,7 @@ export function ConnectMcpDialog({ open, onClose }: { open: boolean; onClose: ()
                     {client.name} and verifies it. You only answer its questions.
                   </p>
                   <div className="group relative">
-                    <pre className="max-h-56 overflow-auto rounded-lg border bg-black/40 p-3 pr-10 font-sans text-xs leading-relaxed whitespace-pre-wrap text-foreground/90">{agentSetup}</pre>
+                    <pre className="rounded-lg border bg-black/40 p-3 pr-10 font-sans text-xs leading-relaxed break-words whitespace-pre-wrap text-foreground/90">{agentSetup}</pre>
                     <button onClick={() => copyBox("setup", agentSetup)} className="absolute top-2 right-2 rounded p-1 text-muted-foreground hover:bg-secondary hover:text-foreground" aria-label="Copy setup prompt">
                       {copiedBox === "setup" ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
                     </button>
@@ -254,10 +254,10 @@ export function ConnectMcpDialog({ open, onClose }: { open: boolean; onClose: ()
                 <section className="rounded-xl border bg-card/60 p-4 text-sm">
                   <h3 className="mb-1 font-medium">First task to try once connected</h3>
                   <p className="mb-2 text-muted-foreground">
-                    A real developer workflow that uses four tools and ends with the agent remembering a decision into the brain, which then shows up here as "Remembered from earlier".
+                    A real developer workflow that uses four tools and ends with the agent remembering a decision into the brain, which then shows up here as &quot;Remembered from earlier&quot;.
                   </p>
                   <div className="group relative">
-                    <pre className="max-h-56 overflow-auto rounded-lg border bg-black/40 p-3 pr-10 font-sans text-xs leading-relaxed whitespace-pre-wrap text-foreground/90">{firstTaskPrompt}</pre>
+                    <pre className="rounded-lg border bg-black/40 p-3 pr-10 font-sans text-xs leading-relaxed break-words whitespace-pre-wrap text-foreground/90">{firstTaskPrompt}</pre>
                     <button onClick={() => copyBox("task", firstTaskPrompt)} className="absolute top-2 right-2 rounded p-1 text-muted-foreground hover:bg-secondary hover:text-foreground" aria-label="Copy first task prompt">
                       {copiedBox === "task" ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
                     </button>
