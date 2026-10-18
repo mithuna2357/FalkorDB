@@ -182,7 +182,8 @@ export function HandsOnRepo() {
   // After a sync the overview may have changed; drop the cached one so it reloads.
   useEffect(() => {
     if (syncing === null && activeOrg && syncResults[activeOrg]) setOverview((o) => {
-      const { [activeOrg]: _drop, ...rest } = o
+      const rest = { ...o }
+      delete rest[activeOrg]
       return rest
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
