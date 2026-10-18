@@ -43,6 +43,10 @@
 <td width="50%"><img src="docs/images/demo-revert.gif" alt="Asking why something was reverted and who decided, with the Cypher that ran"><br><sub><b>Why was this reverted, and who decided?</b> Commit, revert, pull request, who merged it, and the Cypher that found it.</sub></td>
 <td width="50%"><img src="docs/images/demo-leaves.gif" alt="Asking what happens if one person leaves and who could cover"><br><sub><b>What if this person leaves?</b> Files only they touched, open work, and who could cover each area.</sub></td>
 </tr>
+<tr>
+<td width="50%"><img src="docs/images/demo-build.gif" alt="Pasting a GitHub repository link and building its brain live, with the ingestion log"><br><sub><b>Build a brain live.</b> Paste an org or a repository link; commits, PRs, reviews, issues and comments are read and folded into the graph while you watch the log.</sub></td>
+<td width="50%"><img src="docs/images/demo-mcp.gif" alt="Codex using the HandsOnRepo MCP tools to pick reviewers and write PR notes"><br><sub><b>The same brain in your coding agent.</b> Codex calls who_knows, reverts, decision_trail and remember over MCP, writes PR_NOTES.md, and the decision shows up in the web app as memory.</sub></td>
+</tr>
 </table>
 
 ## For the judges, in one minute
