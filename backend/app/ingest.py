@@ -469,7 +469,7 @@ def ingest_org(org: str, repos_filter: list[str] | None = None, clone: bool = Tr
 
     repos = gh.list_repos(org)
     if repos_filter:
-        wanted = {r.lower() for r in repos_filter}
+        wanted = {r.lower().split("/")[-1] for r in repos_filter}     # "gallery" or "google-ai-edge/gallery"
         repos = [r for r in repos if r["name"].lower() in wanted]
     progress(f"{len(repos)} repos: {', '.join(r['name'] for r in repos)}")
 

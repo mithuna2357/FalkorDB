@@ -72,7 +72,7 @@ export function BuildBrainForm({
   // "FalkorDB", "github.com/FalkorDB" or "github.com/google-ai-edge/gallery" (the last one builds only that repo)
   const path = org.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/[?#].*$/, "").replace(/\/+$/, "")
   const [clean, repoName] = path.split("/")
-  const repo = repoName && /^[\w.-]+$/.test(repoName) ? `${clean}/${repoName}` : undefined
+  const repo = repoName && /^[\w.-]+$/.test(repoName) ? repoName : undefined
   const valid = ORG_RE.test(clean ?? "")
 
   return (
