@@ -32,6 +32,23 @@ const vscode = (c: Cmd) =>
 const codex = (c: Cmd) =>
   `[mcp_servers.handsonrepo]\ncommand = '${c.command}'\nargs = ['${c.args[0]}']\nstartup_timeout_sec = 30\n\n[mcp_servers.handsonrepo.env]\nBRAIN_DEFAULT_ORG = "FalkorDB"`
 
+// Paste-into-your-agent prompts. The agent does the clone, install, config and verification itself.
+const setupPrompt = (clientName: string, where: string, repo: string) =>
+  `Set up the HandsOnRepo MCP server for ${clientName} on this machine. Steps:
+1. Clone ${repo} into a folder of my choice (ask me if unsure, default to ~/HandsOnRepo).
+2. Create a Python virtual environment in .venv and install backend/requirements.txt plus the "mcp" package.
+3. Make sure FalkorDB is reachable: if Docker is available run "docker run -d --name falkordb -p 6379:6379 -p 3000:3000 falkordb/falkordb:latest", otherwise ask me for FalkorDB Cloud host, port, username and password and put them in backend/.env (copy backend/.env.example first). Keep FALKORDB_SSL=false.
+4. Run "python mcp/print_config.py" from the repo root with the right flavor for ${clientName} (json, vscode, codex or claude-code) and merge the output into ${clientName}'s MCP config at: ${where}. Do not overwrite other servers already in that file.
+5. Set BRAIN_DEFAULT_ORG to FalkorDB unless I tell you another org.
+6. Verify with "python mcp/test_client.py" and tell me the number of tools it lists. Then tell me to restart ${clientName} and type /mcp (or open its MCP list) to confirm "handsonrepo" shows 18 tools.
+Do not paste any secret back into chat.`
+
+const firstTaskPrompt = `Use the handsonrepo MCP tools for everything below, do not guess from memory.
+1. I am about to change the vector index code under graph/src/index in FalkorDB/FalkorDB. Find out who owns this area and who should review my PR, with the evidence (commits, reviews).
+2. Check whether anything in this area was reverted recently and why (use reverts, then decision_trail on the result).
+3. Write PR_NOTES.md in the current folder: a short summary of my planned change, the suggested reviewers with one line each on why, and a checklist of things to be careful about based on the revert history. Cite PR numbers and commit shas.
+4. Finally call remember with the decision: who will review, who is backup, and that the PR will reference the revert history.`
+
 type Client = { id: string; name: string; where: string; steps: string[]; snippet: (c: Cmd) => string; lang: string }
 
 const CLIENTS: Client[] = [
@@ -75,6 +92,7 @@ export function ConnectMcpDialog({ open, onClose }: { open: boolean; onClose: ()
   const [os, setOs] = useState<"win" | "nix">("win")
   const [repoPath, setRepoPath] = useState("")
   const [copied, setCopied] = useState(false)
+  const [copiedBox, setCopiedBox] = useState<string | null>(null)
 
   useEffect(() => {
     if (!open) return
@@ -97,6 +115,14 @@ export function ConnectMcpDialog({ open, onClose }: { open: boolean; onClose: ()
       setTimeout(() => setCopied(false), 1200)
     } catch {}
   }
+  const copyBox = async (id: string, text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopiedBox(id)
+      setTimeout(() => setCopiedBox(null), 1200)
+    } catch {}
+  }
+  const agentSetup = setupPrompt(client.name, client.where, REPO_URL)
 
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
@@ -209,6 +235,33 @@ export function ConnectMcpDialog({ open, onClose }: { open: boolean; onClose: ()
                       <li key={s}>{s}</li>
                     ))}
                   </ol>
+                </section>
+
+                <section className="rounded-xl border border-[#48d55d]/30 bg-[#48d55d]/[0.05] p-4 text-sm">
+                  <h3 className="mb-1 font-medium">Or let your coding agent do the setup</h3>
+                  <p className="mb-2 text-muted-foreground">
+                    Paste this into {client.name}, Claude Code, Cursor or Codex. The agent clones the repo, installs, generates the config for{" "}
+                    {client.name} and verifies it. You only answer its questions.
+                  </p>
+                  <div className="group relative">
+                    <pre className="max-h-56 overflow-auto rounded-lg border bg-black/40 p-3 pr-10 font-sans text-xs leading-relaxed whitespace-pre-wrap text-foreground/90">{agentSetup}</pre>
+                    <button onClick={() => copyBox("setup", agentSetup)} className="absolute top-2 right-2 rounded p-1 text-muted-foreground hover:bg-secondary hover:text-foreground" aria-label="Copy setup prompt">
+                      {copiedBox === "setup" ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+                    </button>
+                  </div>
+                </section>
+
+                <section className="rounded-xl border bg-card/60 p-4 text-sm">
+                  <h3 className="mb-1 font-medium">First task to try once connected</h3>
+                  <p className="mb-2 text-muted-foreground">
+                    A real developer workflow that uses four tools and ends with the agent remembering a decision into the brain, which then shows up here as "Remembered from earlier".
+                  </p>
+                  <div className="group relative">
+                    <pre className="max-h-56 overflow-auto rounded-lg border bg-black/40 p-3 pr-10 font-sans text-xs leading-relaxed whitespace-pre-wrap text-foreground/90">{firstTaskPrompt}</pre>
+                    <button onClick={() => copyBox("task", firstTaskPrompt)} className="absolute top-2 right-2 rounded p-1 text-muted-foreground hover:bg-secondary hover:text-foreground" aria-label="Copy first task prompt">
+                      {copiedBox === "task" ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+                    </button>
+                  </div>
                 </section>
 
                 <section className="text-sm">

@@ -83,8 +83,7 @@ def orgs() -> list[dict]:
         meta = schema.get_meta(graph_for(org))
         if meta:
             out.append({"org": meta["org"], "nodes": meta["nodes"], "edges": meta["edges"], "lastSync": meta["lastSync"]})
-        else:
-            out.append({"org": org, "nodes": 0, "edges": 0, "lastSync": None})
+        # graphs without metadata are still being built (or were abandoned); the ingest status endpoint reports them
     out.sort(key=lambda o: o["nodes"], reverse=True)
     return out
 

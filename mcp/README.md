@@ -32,6 +32,33 @@ The files in [`configs/`](configs/) and the project-level files at the repo root
 `.vscode/mcp.json`, `.agents/mcp_config.json`, `.codex/config.toml`) are the same configs generated for the authors'
 checkout; regenerate them with the command above if your clone lives somewhere else.
 
+## Let your coding agent set it up
+
+Paste this into Claude Code, Cursor, Codex or any coding agent, replacing the client name if you use another one:
+
+```text
+Set up the HandsOnRepo MCP server for Claude Desktop on this machine. Steps:
+1. Clone https://github.com/mithuna2357/FalkorDB into a folder of my choice (ask me if unsure, default to ~/HandsOnRepo).
+2. Create a Python virtual environment in .venv and install backend/requirements.txt plus the "mcp" package.
+3. Make sure FalkorDB is reachable: if Docker is available run "docker run -d --name falkordb -p 6379:6379 -p 3000:3000 falkordb/falkordb:latest", otherwise ask me for FalkorDB Cloud host, port, username and password and put them in backend/.env (copy backend/.env.example first). Keep FALKORDB_SSL=false.
+4. Run "python mcp/print_config.py" from the repo root with the right flavor for the client (json, vscode, codex or claude-code) and merge the output into the client's MCP config file. Do not overwrite other servers already in that file.
+5. Set BRAIN_DEFAULT_ORG to FalkorDB unless I tell you another org.
+6. Verify with "python mcp/test_client.py" and tell me the number of tools it lists. Then tell me to restart the client and type /mcp (or open its MCP list) to confirm "handsonrepo" shows 18 tools.
+Do not paste any secret back into chat.
+```
+
+## First task to try once connected
+
+```text
+Use the handsonrepo MCP tools for everything below, do not guess from memory.
+1. I am about to change the vector index code under graph/src/index in FalkorDB/FalkorDB. Find out who owns this area and who should review my PR, with the evidence (commits, reviews).
+2. Check whether anything in this area was reverted recently and why (use reverts, then decision_trail on the result).
+3. Write PR_NOTES.md in the current folder: a short summary of my planned change, the suggested reviewers with one line each on why, and a checklist of things to be careful about based on the revert history. Cite PR numbers and commit shas.
+4. Finally call remember with the decision: who will review, who is backup, and that the PR will reference the revert history.
+```
+
+After step 4, open the web app, pick FalkorDB and ask "What did we decide about reviewing the vector index change?". The answer shows the decision your coding agent stored, tagged as coming from an MCP client.
+
 ## Tools
 
 | Tool | What it answers |
