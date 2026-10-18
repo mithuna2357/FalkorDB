@@ -12,7 +12,7 @@ from typing import Any
 
 from falkordb import Graph
 
-from .db import PathCollector, run
+from .db import PathCollector, node_json, run
 
 _WRITE_RE = re.compile(r"\b(CREATE|MERGE|DELETE|DETACH|SET|REMOVE|DROP|LOAD\s+CSV|CALL\s+db\.(?!idx\.\w+\.query|indexes|labels|relationshipTypes|propertyKeys))\b", re.I)
 _LIMIT_RE = re.compile(r"\bLIMIT\s+\d+", re.I)
@@ -381,13 +381,23 @@ def owner_history(g: Graph, file_ref: str, repo: str | None = None) -> dict:
 def recall(g: Graph, question: str, limit: int = 3) -> dict:
     """Earlier questions/answers (Episode nodes) that match this question, from any agent that writes to this graph."""
     rows, col, used, ms = _fulltext(g, "Episode", question, limit)
+    fallback = False
+    if not rows:
+        # "What did I ask earlier?" shares no words with the stored questions: fall back to the latest episodes.
+        q = ("MATCH (e:Episode) RETURN e ORDER BY e.created_at DESC LIMIT $limit")
+        res = g.ro_query(q, {"limit": int(limit)})
+        rows = [{"node": node_json(r[0]), "score": 0.0} for r in res.result_set]
+        used = list(used or []) + [q]; fallback = True
     eps = []
     for r in rows:
         pp = r["node"].get("props") or {}
         eps.append({"episode_id": pp.get("id"), "question": pp.get("question"), "answer": (pp.get("answer") or "")[:600],
                     "at": pp.get("created_at"), "agent": pp.get("agent") or ("mcp" if "mcp" in (pp.get("tools") or []) else "chat"),
                     "tools": pp.get("tools"), "score": round(float(r["score"]), 2)})
-    return _pack({"episodes": eps}, col, used, ms)
+    out = {"episodes": eps}
+    if fallback and eps:
+        out["note"] = "No episode matched the words of the question; these are the most recent episodes instead."
+    return _pack(out, col, used, ms)
 
 
 def record_action(g: Graph, org: str, kind: str, repo: str, target_key: str, body: str, url: str | None,
