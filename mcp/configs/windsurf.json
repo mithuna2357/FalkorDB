@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "handsonrepo": {
+      "command": "D:\\Falkordb\\.venv\\Scripts\\python.exe",
+      "args": [
+        "D:\\Falkordb\\mcp\\server.py"
+      ],
+      "env": {
+        "BRAIN_DEFAULT_ORG": "FalkorDB"
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+# Add to ~/.codex/config.toml (user scope) or keep as .codex/config.toml in the project.
+# Single-quoted TOML strings are literal, so Windows backslashes need no escaping.
+[mcp_servers.handsonrepo]
+command = 'D:\Falkordb\.venv\Scripts\python.exe'
+args = ['D:\Falkordb\mcp\server.py']
+startup_timeout_sec = 30
+
+[mcp_servers.handsonrepo.env]
+BRAIN_DEFAULT_ORG = "FalkorDB"

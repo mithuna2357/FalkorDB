@@ -1,0 +1,332 @@
+{
+  "request": {
+    "org": "FalkorDB",
+    "question": "Who should review changes to the asyncio client?"
+  },
+  "response": {
+    "answer": "**Guy Korland** (@gkorland) should review changes to the asyncio client.\n\n- 33 commits across 7 matching files, last touch 2026-08-13\n- Backup: Roi Lipman (@swilly22), 3 commits on 2 files\n- Backup: Shahar Biron (@shahar-biron), 4 commits on 4 files\n\nRanked by commits touching the matched files plus reviews of PRs that touched them; PageRank over reviewer\u2192author edges breaks ties.",
+    "sources": [
+      {
+        "type": "Person",
+        "id": "gkorland",
+        "title": "Guy Korland",
+        "url": "https://github.com/gkorland"
+      },
+      {
+        "type": "Person",
+        "id": "shahar-biron",
+        "title": "Shahar Biron",
+        "url": "https://github.com/shahar-biron"
+      },
+      {
+        "type": "Person",
+        "id": "swilly22",
+        "title": "Roi Lipman",
+        "url": "https://github.com/swilly22"
+      },
+      {
+        "type": "Person",
+        "id": "SantoshDhaladhuli",
+        "title": "SantoshDhaladhuli",
+        "url": "https://github.com/SantoshDhaladhuli"
+      },
+      {
+        "type": "Person",
+        "id": "kiarina",
+        "title": "kiarina",
+        "url": "https://github.com/kiarina"
+      },
+      {
+        "type": "Person",
+        "id": "naseem77",
+        "title": "Naseem Ali",
+        "url": "https://github.com/naseem77"
+      },
+      {
+        "type": "Person",
+        "id": "binggao1230",
+        "title": "Vincent Gao",
+        "url": "https://github.com/binggao1230"
+      },
+      {
+        "type": "File",
+        "id": "falkordb/asyncio/falkordb.py",
+        "title": "falkordb/asyncio/falkordb.py",
+        "url": "https://github.com/FalkorDB/falkordb-py/blob/HEAD/falkordb/asyncio/falkordb.py"
+      },
+      {
+        "type": "File",
+        "id": "falkordb/asyncio/query_result.py",
+        "title": "falkordb/asyncio/query_result.py",
+        "url": "https://github.com/FalkorDB/falkordb-py/blob/HEAD/falkordb/asyncio/query_result.py"
+      },
+      {
+        "type": "File",
+        "id": "falkordb/asyncio/sentinel.py",
+        "title": "falkordb/asyncio/sentinel.py",
+        "url": "https://github.com/FalkorDB/falkordb-py/blob/HEAD/falkordb/asyncio/sentinel.py"
+      },
+      {
+        "type": "File",
+        "id": "falkordb/asyncio/graph.py",
+        "title": "falkordb/asyncio/graph.py",
+        "url": "https://github.com/FalkorDB/falkordb-py/blob/HEAD/falkordb/asyncio/graph.py"
+      },
+      {
+        "type": "File",
+        "id": "falkordb/asyncio/cluster.py",
+        "title": "falkordb/asyncio/cluster.py",
+        "url": "https://github.com/FalkorDB/falkordb-py/blob/HEAD/falkordb/asyncio/cluster.py"
+      }
+    ],
+    "path": {
+      "nodes": [
+        {
+          "id": "n530",
+          "label": "Person",
+          "title": "Guy Korland",
+          "url": "https://github.com/gkorland",
+          "key": "gkorland"
+        },
+        {
+          "id": "n524",
+          "label": "Person",
+          "title": "Shahar Biron",
+          "url": "https://github.com/shahar-biron",
+          "key": "shahar-biron"
+        },
+        {
+          "id": "n518",
+          "label": "Person",
+          "title": "Roi Lipman",
+          "url": "https://github.com/swilly22",
+          "key": "swilly22"
+        },
+        {
+          "id": "n534",
+          "label": "Person",
+          "title": "SantoshDhaladhuli",
+          "url": "https://github.com/SantoshDhaladhuli",
+          "key": "santoshdhaladhuli"
+        },
+        {
+          "id": "n517",
+          "label": "Person",
+          "title": "kiarina",
+          "url": "https://github.com/kiarina",
+          "key": "kiarina"
+        },
+        {
+          "id": "n531",
+          "label": "Person",
+          "title": "Naseem Ali",
+          "url": "https://github.com/naseem77",
+          "key": "naseem77"
+        },
+        {
+          "id": "n528",
+          "label": "Person",
+          "title": "Vincent Gao",
+          "url": "https://github.com/binggao1230",
+          "key": "binggao1230"
+        },
+        {
+          "id": "n421",
+          "label": "File",
+          "title": "falkordb/asyncio/falkordb.py",
+          "url": "https://github.com/FalkorDB/falkordb-py/blob/HEAD/falkordb/asyncio/falkordb.py",
+          "key": "FalkorDB/falkordb-py:falkordb/asyncio/falkordb.py"
+        },
+        {
+          "id": "n436",
+          "label": "File",
+          "title": "falkordb/asyncio/query_result.py",
+          "url": "https://github.com/FalkorDB/falkordb-py/blob/HEAD/falkordb/asyncio/query_result.py",
+          "key": "FalkorDB/falkordb-py:falkordb/asyncio/query_result.py"
+        },
+        {
+          "id": "n488",
+          "label": "File",
+          "title": "falkordb/asyncio/sentinel.py",
+          "url": "https://github.com/FalkorDB/falkordb-py/blob/HEAD/falkordb/asyncio/sentinel.py",
+          "key": "FalkorDB/falkordb-py:falkordb/asyncio/sentinel.py"
+        },
+        {
+          "id": "n454",
+          "label": "File",
+          "title": "falkordb/asyncio/graph.py",
+          "url": "https://github.com/FalkorDB/falkordb-py/blob/HEAD/falkordb/asyncio/graph.py",
+          "key": "FalkorDB/falkordb-py:falkordb/asyncio/graph.py"
+        },
+        {
+          "id": "n474",
+          "label": "File",
+          "title": "falkordb/asyncio/cluster.py",
+          "url": "https://github.com/FalkorDB/falkordb-py/blob/HEAD/falkordb/asyncio/cluster.py",
+          "key": "FalkorDB/falkordb-py:falkordb/asyncio/cluster.py"
+        }
+      ],
+      "edges": [
+        {
+          "from": "n518",
+          "to": "n421",
+          "type": "TOUCHES",
+          "props": {
+            "count": 2,
+            "additions": 92.0,
+            "deletions": 1.0,
+            "last": "2025-12-07T15:19:03+02:00"
+          }
+        },
+        {
+          "from": "n518",
+          "to": "n436",
+          "type": "TOUCHES",
+          "props": {
+            "count": 1,
+            "additions": 68.0,
+            "deletions": 40.0,
+            "last": "2025-06-29T20:09:24+03:00"
+          }
+        },
+        {
+          "from": "n524",
+          "to": "n488",
+          "type": "TOUCHES",
+          "props": {
+            "count": 1,
+            "additions": 98.0,
+            "deletions": 0.0,
+            "last": "2026-03-04T11:43:53+02:00"
+          }
+        },
+        {
+          "from": "n524",
+          "to": "n421",
+          "type": "TOUCHES",
+          "props": {
+            "count": 1,
+            "additions": 113.0,
+            "deletions": 19.0,
+            "last": "2026-03-04T11:43:53+02:00"
+          }
+        },
+        {
+          "from": "n524",
+          "to": "n454",
+          "type": "TOUCHES",
+          "props": {
+            "count": 1,
+            "additions": 2.0,
+            "deletions": 2.0,
+            "last": "2026-03-04T11:43:53+02:00"
+          }
+        },
+        {
+          "from": "n524",
+          "to": "n474",
+          "type": "TOUCHES",
+          "props": {
+            "count": 1,
+            "additions": 97.0,
+            "deletions": 11.0,
+            "last": "2026-03-04T11:43:53+02:00"
+          }
+        },
+        {
+          "from": "n530",
+          "to": "n421",
+          "type": "TOUCHES",
+          "props": {
+            "count": 14,
+            "additions": 255.0,
+            "deletions": 151.0,
+            "last": "2026-08-13T14:13:08+03:00"
+          }
+        },
+        {
+          "from": "n530",
+          "to": "n436",
+          "type": "TOUCHES",
+          "props": {
+            "count": 6,
+            "additions": 177.0,
+            "deletions": 95.0,
+            "last": "2026-08-13T14:13:08+03:00"
+          }
+        },
+        {
+          "from": "n530",
+          "to": "n454",
+          "type": "TOUCHES",
+          "props": {
+            "count": 6,
+            "additions": 233.0,
+            "deletions": 143.0,
+            "last": "2026-08-13T21:42:09+03:00"
+          }
+        },
+        {
+          "from": "n530",
+          "to": "n474",
+          "type": "TOUCHES",
+          "props": {
+            "count": 3,
+            "additions": 40.0,
+            "deletions": 13.0,
+            "last": "2026-08-13T21:22:54+03:00"
+          }
+        }
+      ]
+    },
+    "cypher": [
+      "UNWIND $terms AS t MATCH (f:File) WHERE toLower(f.path) CONTAINS toLower(t) RETURN DISTINCT f LIMIT 300",
+      "MATCH (p:Person)-[t:TOUCHES]->(f:File) WHERE f.key IN $files AND NOT coalesce(p.is_bot, false) WITH p, sum(t.count) AS commits, count(DISTINCT f) AS files, max(t.last) AS last OPTIONAL MATCH (p)-[:REVIEWED]->(pr:PR)-[:TOUCHED]->(f2:File) WHERE f2.key IN $files WITH p, commits, files, last, count(DISTINCT pr) AS reviews RETURN p, commits, files, last, reviews ORDER BY commits DESC, reviews DESC LIMIT 10",
+      "CALL algo.pageRank('Person', 'REVIEWED_FOR') YIELD node, score RETURN node.key AS key, score",
+      "UNWIND $pk AS k MATCH (p:Person {key:k})-[t:TOUCHES]->(f:File) WHERE f.key IN $files WITH p, t, f ORDER BY t.count DESC WITH p, collect([t, f])[0..4] AS tf UNWIND tf AS x RETURN p, x[0] AS t, x[1] AS f"
+    ],
+    "toolCalls": [
+      {
+        "tool": "who_knows",
+        "args": {
+          "topic": "asyncio",
+          "limit": 3
+        },
+        "ms": 18,
+        "ok": true
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "model": "fixture"
+    },
+    "memory": [
+      {
+        "episode_id": "87d4ac6a438a",
+        "question": "Decision from Cursor session: who should own the falkordb-py release process?",
+        "answer_excerpt": "Agreed in Cursor: Guy Korland (@gkorland) owns the release process for falkordb-py; Roi Lipman is backup.",
+        "at": "2026-10-17T17:28:00+00:00",
+        "agent": "mcp",
+        "score": 2.1
+      }
+    ]
+  },
+  "orgs": [
+    {
+      "org": "FalkorDB",
+      "nodes": 1049,
+      "edges": 3271,
+      "lastSync": "2026-10-17T14:00:00+00:00"
+    }
+  ],
+  "sync": {
+    "added": 12,
+    "updated": 3,
+    "superseded": 1,
+    "nodes": 1061,
+    "edges": 3290,
+    "seconds": 9,
+    "lastSync": "2026-10-17T14:05:00+00:00"
+  }
+}
