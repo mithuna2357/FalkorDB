@@ -834,8 +834,7 @@ def suggest_questions(g: Graph, limit: int = 6) -> dict:
             out.append(f"Why was PR #{(pr.get('props') or {}).get('number')} in {repo} reverted, and who decided?")
         else:
             out.append(f"Why was commit {str(props.get('sha', ''))[:7]} in {repo} reverted, and who decided?")
-    else:
-        out.append("Which PRs or commits were reverted, and why? Who decided?")
+    # no revert in this org: do not offer a question the graph cannot answer
     q3 = ("MATCH (p:Person)-[:AUTHORED]->(c:Commit) WHERE NOT coalesce(p.is_bot, false) "
           "RETURN coalesce(p.name, p.login) AS name, count(c) AS n ORDER BY n DESC LIMIT 1")
     r3, _, _ = run(g, q3); cy.append(q3)

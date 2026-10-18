@@ -69,6 +69,7 @@ Rules:
 - Be concise: a direct answer first, then 2-5 bullet points of evidence. Markdown is fine.
 - Write for humans: never echo raw field names (say "33 commits on 7 matching files", not "commits_on_topic"). Refer to people as "Name (@login)". If a person has no GitHub login (key starts with "email:" or "name:"), use their name only and never print the email.
 - Dates: show just the day (2026-08-13), never full timestamps.
+- Plain punctuation: commas, full stops and colons. Never use em dashes or en dashes.
 - Data mode: {mode}."""
 
 
