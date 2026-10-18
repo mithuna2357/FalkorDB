@@ -16,6 +16,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import logging
+import os
 import threading
 from datetime import datetime, timezone
 from typing import Any
@@ -88,8 +89,34 @@ def orgs() -> list[dict]:
     return out
 
 
+
+# ---- daily limits: the public demo runs on a small OpenAI budget and free tiers ----
+ASK_DAILY_LIMIT = int(os.environ.get("ASK_DAILY_LIMIT", "150"))        # questions per day, all users
+ASK_PER_IP_DAILY = int(os.environ.get("ASK_PER_IP_DAILY", "30"))       # questions per day per address
+BUILD_DAILY_LIMIT = int(os.environ.get("BUILD_DAILY_LIMIT", "12"))     # new brains per day
+_quota_lock = threading.Lock()
+_quota: dict[str, int] = {}
+
+
+def _take_quota(kind: str, request: Request | None, limit: int, per_ip: int | None = None) -> None:
+    """Count one use of `kind` today; raise 429 when the day's limit is reached. In memory, resets at UTC midnight."""
+    day = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    ip = (request.headers.get("x-forwarded-for", "").split(",")[0].strip() or (request.client.host if request.client else "?")) if request else "?"
+    with _quota_lock:
+        for k in [k for k in _quota if not k.startswith(day)]:
+            del _quota[k]
+        total = _quota.get(f"{day}:{kind}", 0)
+        mine = _quota.get(f"{day}:{kind}:{ip}", 0)
+        if total >= limit:
+            raise HTTPException(429, f"The public demo answered its {limit} {kind}s for today. Run it locally (see the README) or come back tomorrow.")
+        if per_ip is not None and mine >= per_ip:
+            raise HTTPException(429, f"You have used today's {per_ip} {kind}s from this address. Run it locally (see the README) or come back tomorrow.")
+        _quota[f"{day}:{kind}"] = total + 1
+        _quota[f"{day}:{kind}:{ip}"] = mine + 1
+
 @app.post("/api/ask")
-def ask(body: AskBody) -> dict:
+def ask(body: AskBody, request: Request) -> dict:
+    _take_quota("question", request, ASK_DAILY_LIMIT, ASK_PER_IP_DAILY)
     try:
         org = normalize_org(body.org)
     except ValueError as e:
@@ -106,7 +133,7 @@ def ask(body: AskBody) -> dict:
 
 
 @app.post("/api/sync")
-def api_sync(body: OrgBody, response: Response) -> dict:
+def api_sync(body: OrgBody, response: Response, request: Request) -> dict:
     """Known org: incremental sync (seconds). Unknown org: start a full ingestion in the background and answer 202
     {status:"building"}; the UI polls GET /api/ingest/{org}/status until state == done."""
     try:
@@ -114,6 +141,7 @@ def api_sync(body: OrgBody, response: Response) -> dict:
     except ValueError as e:
         raise HTTPException(400, str(e))
     if not schema.get_meta(graph_for(org)):
+        _take_quota("brain build", request, BUILD_DAILY_LIMIT)
         with _ingest_lock:
             cur = _ingest_state.get(org)
             if not cur or cur["state"] != "running":

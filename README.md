@@ -32,6 +32,21 @@
 
 ---
 
+## Demo
+
+<p align="center">
+  <a href="https://youtu.be/kDNr_3gpCQU"><img src="https://img.youtube.com/vi/kDNr_3gpCQU/maxresdefault.jpg" alt="HandsOnRepo demo video" width="820"></a>
+</p>
+
+| | |
+|---|---|
+| Demo video | [youtu.be/kDNr_3gpCQU](https://youtu.be/kDNr_3gpCQU) (4 min 46 s) |
+| Live app | [handsonrepo.vercel.app](https://handsonrepo.vercel.app), with the FalkorDB and google-ai-edge/gallery brains already built |
+| Live API | [handsonrepo-api.onrender.com/health](https://handsonrepo-api.onrender.com/health) |
+| Write-up | [dev.to post](https://dev.to/chethan_vasthaw) |
+
+The public demo is capped at 150 questions and 12 new brains a day, so it stays up for everyone. Run it locally for unlimited use.
+
 ## See it move
 
 <table>
