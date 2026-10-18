@@ -35,7 +35,7 @@
 ## Demo
 
 <p align="center">
-  <a href="https://youtu.be/kDNr_3gpCQU"><img src="https://img.youtube.com/vi/kDNr_3gpCQU/maxresdefault.jpg" alt="HandsOnRepo demo video" width="820"></a>
+  <a href="https://youtu.be/kDNr_3gpCQU"><img src="docs/images/demo-video.jpg" alt="Watch the HandsOnRepo demo video on YouTube" width="820"></a>
 </p>
 
 | | |
