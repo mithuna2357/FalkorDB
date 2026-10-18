@@ -67,18 +67,13 @@ export const CommitsGrid = ({
     height: gridHeight,
   } = generateHighlightedCells(text);
 
-  const getRandomColor = () => {
-    const commitColors = [
-      "#48d55d",
-      "#016d32",
-      "#0d4429"
-    ];
-    const randomIndex = Math.floor(Math.random() * commitColors.length);
-    return commitColors[randomIndex];
-  };
+  // Letters stay in the two bright greens so they read as text; the background flashes use the dark
+  // greens and are rarer, so the animation keeps its life without hiding the word.
+  const getRandomColor = () => (Math.random() < 0.8 ? "#48d55d" : "#39d353");
+  const getRandomFlashColor = () => (Math.random() < 0.5 ? "#016d32" : "#0d4429");
 
   const getRandomDelay = () => `${(Math.random() * 0.6).toFixed(1)}s`;
-  const getRandomFlash = () => +(Math.random() < 0.3);
+  const getRandomFlash = () => +(Math.random() < 0.12);
 
   // Random colours/delays are fixed per text so re-renders don't reshuffle them.
   const cells = React.useMemo(
@@ -89,15 +84,70 @@ export const CommitsGrid = ({
           isHighlighted,
           flash: !isHighlighted && !!getRandomFlash(),
           delay: getRandomDelay(),
-          color: getRandomColor(),
+          color: isHighlighted ? getRandomColor() : getRandomFlashColor(),
         };
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [text]
   );
 
+  const gridRef = React.useRef<HTMLElement>(null);
+  const trail = React.useRef<Map<number, number>>(new Map()); // cell index -> time lit
+  const raf = React.useRef<number>(0);
+  const TRAIL_MS = 650;
+
+  const paint = React.useCallback(() => {
+    const el = gridRef.current;
+    if (!el) return;
+    const now = performance.now();
+    for (const [idx, t] of trail.current) {
+      const cell = el.children[idx] as HTMLElement | undefined;
+      if (!cell) continue;
+      const age = (now - t) / TRAIL_MS;
+      if (age >= 1) {
+        trail.current.delete(idx);
+        cell.style.removeProperty("box-shadow");
+        cell.style.removeProperty("background-color");
+        continue;
+      }
+      const a = 1 - age;
+      cell.style.backgroundColor = `rgba(72, 213, 93, ${(0.25 + 0.75 * a).toFixed(3)})`;
+      cell.style.boxShadow = `0 0 ${(8 * a).toFixed(1)}px rgba(72, 213, 93, ${(0.6 * a).toFixed(3)})`;
+    }
+    if (trail.current.size) raf.current = requestAnimationFrame(paint);
+    else raf.current = 0;
+  }, []);
+
+  const onMove = (e: React.PointerEvent<HTMLElement>) => {
+    const el = gridRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const cs = getComputedStyle(el);
+    const padX = parseFloat(cs.paddingLeft);
+    const padY = parseFloat(cs.paddingTop);
+    const innerW = rect.width - padX - parseFloat(cs.paddingRight);
+    const innerH = rect.height - padY - parseFloat(cs.paddingBottom);
+    const col = Math.floor(((e.clientX - rect.left - padX) / innerW) * gridWidth);
+    const row = Math.floor(((e.clientY - rect.top - padY) / innerH) * gridHeight);
+    if (col < 0 || row < 0 || col >= gridWidth || row >= gridHeight) return;
+    const idx = row * gridWidth + col;
+    const now = performance.now();
+    // light the cell under the pointer and a soft halo around it
+    for (const [dr, dc] of [[0, 0], [0, 1], [0, -1], [1, 0], [-1, 0]]) {
+      const r = row + dr, c = col + dc;
+      if (r < 0 || c < 0 || r >= gridHeight || c >= gridWidth) continue;
+      const i = r * gridWidth + c;
+      trail.current.set(i, i === idx ? now : now - TRAIL_MS * 0.45);
+    }
+    if (!raf.current) raf.current = requestAnimationFrame(paint);
+  };
+
+  React.useEffect(() => () => cancelAnimationFrame(raf.current), []);
+
   return (
     <section
+      ref={gridRef}
+      onPointerMove={onMove}
       className={cn(
         "w-full max-w-xl bg-card border grid p-1.5 sm:p-3 gap-0.5 sm:gap-1 rounded-[10px] sm:rounded-[15px]",
         className
@@ -116,7 +166,7 @@ export const CommitsGrid = ({
             key={index}
             data-hl={isHighlighted ? "" : undefined}
             className={cn(
-              `border h-full w-full aspect-square rounded-[4px] sm:rounded-[3px]`,
+              `border h-full w-full aspect-square rounded-[4px] sm:rounded-[3px] transition-[background-color] duration-150`,
               lit && animateIn ? "animate-highlight" : "",
               lit && !animateIn ? "bg-(--highlight)" : "",
               shouldFlash ? "animate-flash" : "",

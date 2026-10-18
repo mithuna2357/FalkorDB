@@ -8,16 +8,19 @@ import { useLenis } from "@/lib/hooks"
 
 // Example questions from the HandsOnRepo spec.
 const SUGGESTIONS = [
-  "Who should review a change to the vector index code?",
-  "Why was PR #1234 reverted?",
-  "What is the bus factor risk in this org?",
-  "What changed since I asked this yesterday?",
+  "Who should review a change to the vector index code, and why them?",
+  "Which PRs or commits were reverted, and why? Who decided?",
+  "What happens if the top contributor leaves? Who could cover?",
+  "What teams exist here and who leads each?",
+  "Who are the most trusted reviewers, and who do they review for?",
+  "What did I ask earlier, and what did the triage agent do recently?",
 ]
 
 const EASE = [0.22, 1, 0.36, 1] as const
 
 export function ChatPanel({
   org,
+  suggestions,
   messages,
   selectedId,
   onAsk,
@@ -26,6 +29,8 @@ export function ChatPanel({
   onStreamed,
 }: {
   org: string
+  /** questions generated from this org's graph; falls back to generic examples */
+  suggestions?: string[]
   messages: ChatMessage[]
   selectedId: string | null
   onAsk: (question: string) => void
@@ -135,7 +140,7 @@ export function ChatPanel({
         <div ref={scrollRef} className="thin-scroll absolute inset-0 overflow-x-hidden overflow-y-auto overscroll-contain" tabIndex={-1}>
           <div ref={contentRef} className="mx-auto max-w-3xl space-y-8 px-4 py-6">
             {messages.length === 0 ? (
-              <EmptyState org={org} onPick={submit} />
+              <EmptyState org={org} suggestions={suggestions} onPick={submit} />
             ) : (
               messages.map((m) => (
                 <AnswerCard
@@ -208,7 +213,7 @@ export function ChatPanel({
   )
 }
 
-function EmptyState({ org, onPick }: { org: string; onPick: (q: string) => void }) {
+function EmptyState({ org, onPick, suggestions }: { org: string; onPick: (q: string) => void; suggestions?: string[] }) {
   return (
     <motion.div
       key={org}
@@ -230,7 +235,7 @@ function EmptyState({ org, onPick }: { org: string; onPick: (q: string) => void 
         Every answer comes with its sources, the graph path that produced it and the Cypher it ran.
       </motion.p>
       <div className="mt-6 grid gap-2 sm:grid-cols-2">
-        {SUGGESTIONS.map((s) => (
+        {(suggestions && suggestions.length ? suggestions : SUGGESTIONS).map((s) => (
           <motion.button
             key={s}
             onClick={() => onPick(s)}

@@ -1,0 +1,11 @@
+.venv/
+.tmp/
+__pycache__/
+*.pyc
+backend/.env
+backend/.clones/
+node_modules/
+.next/
+
+# publish copy lives inside the dev folder
+publish/

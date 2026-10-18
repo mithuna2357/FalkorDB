@@ -6,6 +6,9 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import type { ChatMessage } from "@/components/answer-card"
 import { BrainCarousel } from "@/components/brain-carousel"
 import { ChatPanel } from "@/components/chat-panel"
+import { ConnectMcpButton } from "@/components/connect-mcp"
+import { GitHubAuth } from "@/components/github-auth"
+import { GitHubLink } from "@/components/github-link"
 import { IntroWhirlwind } from "@/components/intro-whirlwind"
 import { LogoMark, Wordmark } from "@/components/logo-mark"
 import {
@@ -22,9 +25,9 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { CommitsGrid } from "@/components/ui/commits-grid"
 import { Workspace } from "@/components/workspace"
-import { DATA_MODE, ask, getOrgs, sync } from "@/lib/api"
+import { DATA_MODE, ask, getOrgMap, getOrgs, getSuggestions, sync } from "@/lib/api"
 import { useLenis, useOncePerLoad, useReducedMotion } from "@/lib/hooks"
-import type { OrgSummary, SyncResponse } from "@/lib/types"
+import type { GraphPath, OrgSummary, SyncResponse } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 const EASE = [0.22, 1, 0.36, 1] as const
@@ -49,6 +52,34 @@ export function HandsOnRepo() {
 
   const [threads, setThreads] = useState<Record<string, ChatMessage[]>>({})
   const [selected, setSelected] = useState<Record<string, string | null>>({})
+  // Example questions generated from each org's own graph, shown on the empty chat screen.
+  const [suggestions, setSuggestions] = useState<Record<string, string[]>>({})
+  useEffect(() => {
+    if (!activeOrg || suggestions[activeOrg]) return
+    let cancelled = false
+    getSuggestions(activeOrg)
+      .then((q) => {
+        if (!cancelled) setSuggestions((o) => ({ ...o, [activeOrg]: q }))
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [activeOrg, suggestions])
+  // Org overview graph (repos + most active people), shown in the path pane until an answer is selected.
+  const [overview, setOverview] = useState<Record<string, GraphPath>>({})
+  useEffect(() => {
+    if (!activeOrg || overview[activeOrg]) return
+    let cancelled = false
+    getOrgMap(activeOrg)
+      .then((p) => {
+        if (!cancelled) setOverview((o) => ({ ...o, [activeOrg]: p }))
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [activeOrg, overview])
 
   // Smooth inertial page scroll on the landing page (the workspace is a fixed-height layout).
   useLenis({ enabled: !activeOrg })
@@ -148,6 +179,14 @@ export function HandsOnRepo() {
     setReady(null)
     setSyncError(null)
   }
+  // After a sync the overview may have changed; drop the cached one so it reloads.
+  useEffect(() => {
+    if (syncing === null && activeOrg && syncResults[activeOrg]) setOverview((o) => {
+      const { [activeOrg]: _drop, ...rest } = o
+      return rest
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [syncResults])
 
   return (
     <div className={cn("flex flex-col", activeOrg ? "h-dvh overflow-hidden" : "min-h-dvh")}>
@@ -166,6 +205,8 @@ export function HandsOnRepo() {
           )}
 
           <div className="ml-auto flex flex-wrap items-center gap-2">
+            <ConnectMcpButton />
+            <GitHubAuth />
             {orgs.length > 0 && (
               <OrgSwitcher orgs={orgs} value={current?.org ?? null} onChange={switchOrg} disabled={!!building} />
             )}
@@ -182,6 +223,7 @@ export function HandsOnRepo() {
                 />
               </>
             )}
+            <GitHubLink />
           </div>
         </div>
 
@@ -242,6 +284,7 @@ export function HandsOnRepo() {
                 chat={
                   <ChatPanel
                     org={activeOrg}
+                    suggestions={suggestions[activeOrg]}
                     messages={messages}
                     selectedId={selectedId}
                     onAsk={onAsk}
@@ -252,8 +295,9 @@ export function HandsOnRepo() {
                 }
                 graph={({ mode, orientation, minimize, maximize, restore }) => (
                   <PathView
-                    path={selectedMsg?.response?.path ?? null}
+                    path={selectedMsg?.response?.path ?? overview[activeOrg] ?? null}
                     question={selectedMsg?.question ?? null}
+                    overview={!selectedMsg && !!overview[activeOrg]}
                     mode={mode}
                     orientation={orientation}
                     onMinimize={minimize}
@@ -347,6 +391,11 @@ function Landing({
 
       <motion.div {...item(2)} className="mt-8 w-full max-w-xl space-y-3">
         <BuildBrainForm onBuild={onBuild} building={!!building} size="lg" />
+        <p className="text-center text-xs text-muted-foreground">
+          Works for any <b>public</b> GitHub organisation or user account. Type the name (<span className="font-mono">FalkorDB</span>) or paste the
+          URL (<span className="font-mono">https://github.com/FalkorDB</span>); we take it from there. Building reads public repos, PRs, issues
+          and comments and takes 2 to 5 minutes.
+        </p>
         <AnimatePresence initial={false}>
           {building && (
             <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>

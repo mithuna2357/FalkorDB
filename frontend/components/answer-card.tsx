@@ -1,6 +1,6 @@
 "use client"
 
-import { Check, ChevronRight, Copy, ExternalLink, Network, RotateCcw, TriangleAlert, Wrench } from "lucide-react"
+import { Brain, Check, ChevronRight, Copy, ExternalLink, Network, RotateCcw, TriangleAlert, Wrench } from "lucide-react"
 import { AnimatePresence, motion } from "motion/react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import ReactMarkdown from "react-markdown"
@@ -9,7 +9,7 @@ import { LogoMark } from "@/components/logo-mark"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import type { AskResponse, Source } from "@/lib/types"
+import type { AskResponse, MemoryItem, Source, Usage } from "@/lib/types"
 
 export type ChatMessage = {
   id: string
@@ -28,6 +28,49 @@ const SOURCE_STYLES: Record<string, string> = {
   Issue: "border-amber-500/40 text-amber-300",
   Commit: "border-slate-400/40 text-slate-300",
   Person: "border-[#48d55d]/40 text-[#48d55d]",
+  File: "border-emerald-500/30 text-emerald-200/80",
+  Release: "border-cyan-500/40 text-cyan-300",
+  Doc: "border-indigo-400/40 text-indigo-300",
+  Comment: "border-teal-400/40 text-teal-300",
+  Action: "border-orange-500/40 text-orange-300",
+  Repo: "border-lime-500/40 text-lime-300",
+}
+
+const AGENT_LABEL: Record<string, string> = { chat: "this chat", triage: "the triage agent", mcp: "an MCP client (Cursor / Claude Desktop)" }
+
+/** Earlier episodes the agent recalled from the graph before answering (memory across sessions and agents). */
+function MemoryStrip({ memory }: { memory: MemoryItem[] }) {
+  if (!memory.length) return null
+  return (
+    <div className="mb-2 flex items-start gap-2 rounded-lg border border-[#48d55d]/25 bg-[#48d55d]/[0.06] px-3 py-2 text-xs">
+      <Brain className="mt-0.5 size-3.5 shrink-0 text-[#48d55d]" />
+      <div className="min-w-0 space-y-0.5">
+        <p className="font-medium text-[#48d55d]">Remembered from earlier</p>
+        {memory.slice(0, 2).map((m, i) => (
+          <p key={m.episode_id ?? i} className="truncate text-muted-foreground" title={m.answer_excerpt}>
+            <span className="text-foreground/90">{m.question}</span>
+            <span className="ml-1.5 font-mono text-[10px]">
+              {AGENT_LABEL[m.agent ?? "chat"] ?? m.agent}
+              {m.at ? ` · ${new Date(m.at).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}` : ""}
+            </span>
+          </p>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/** Model and token cost for this answer (gpt-5-mini list price: $0.25 / M in, $2 / M out). */
+function UsageLine({ usage, graphMs }: { usage?: Usage; graphMs: number }) {
+  if (!usage?.model) return null
+  const inT = usage.prompt_tokens ?? 0
+  const outT = usage.completion_tokens ?? 0
+  const cost = inT * 0.25e-6 + outT * 2e-6
+  return (
+    <p className="pt-2 font-mono text-[10px] text-muted-foreground">
+      graph {graphMs} ms · {usage.model} · {(inT / 1000).toFixed(1)}k in / {outT} out · ~${cost.toFixed(4)}
+    </p>
+  )
 }
 
 export function AnswerCard({
@@ -90,6 +133,7 @@ export function AnswerCard({
 
           {status === "done" && response && (
             <>
+              <MemoryStrip memory={response.memory ?? []} />
               <StreamingMarkdown
                 text={response.answer}
                 animate={typing}
@@ -133,6 +177,9 @@ export function AnswerCard({
                     </Reveal>
                     <Reveal>
                       <CypherBlock queries={response.cypher ?? []} />
+                    </Reveal>
+                    <Reveal>
+                      <UsageLine usage={response.usage} graphMs={(response.toolCalls ?? []).reduce((a, t) => a + (t.ms || 0), 0)} />
                     </Reveal>
                   </motion.div>
                 )}

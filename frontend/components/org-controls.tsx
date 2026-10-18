@@ -1,10 +1,11 @@
 "use client"
 
 import { Brain, Loader2, RefreshCw } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useSyncExternalStore } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { getBuildLog, subscribeBuildLog } from "@/lib/api"
 import { cn } from "@/lib/utils"
 import type { OrgSummary, SyncResponse } from "@/lib/types"
 
@@ -33,11 +34,14 @@ export function OrgSwitcher({
   disabled?: boolean
 }) {
   return (
-    <Select value={value ?? undefined} onValueChange={onChange} disabled={disabled || orgs.length === 0}>
+    // Always controlled with a string value (never undefined), and popper positioning so the list
+    // drops below the trigger instead of Radix's item-aligned overlay, which misplaces itself inside a
+    // sticky, backdrop-blurred header. Both were causes of the "sometimes it doesn't open" bug.
+    <Select value={value ?? ""} onValueChange={onChange} disabled={disabled || orgs.length === 0}>
       <SelectTrigger className="w-auto min-w-[180px] font-mono" aria-label="Switch organisation">
         <SelectValue placeholder="Select org" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent position="popper" align="end" sideOffset={6}>
         {orgs.map((o) => (
           <SelectItem key={o.org} value={o.org} className="font-mono">
             <span>{o.org}</span>
@@ -82,8 +86,8 @@ export function BuildBrainForm({
       <Input
         value={org}
         onChange={(e) => setOrg(e.target.value)}
-        placeholder="GitHub organisation, e.g. FalkorDB"
-        aria-label="GitHub organisation"
+        placeholder="GitHub org or user — a name like FalkorDB, or paste github.com/FalkorDB"
+        aria-label="GitHub organisation or user name, or a github.com URL"
         className={cn("font-mono", size === "lg" && "h-11 text-base")}
         disabled={building}
       />
@@ -108,6 +112,7 @@ export function BuildProgress({ org, startedAt }: { org: string; startedAt: numb
   }, [])
   const secs = Math.max(0, Math.floor((now - startedAt) / 1000))
   const elapsed = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`
+  const log = useSyncExternalStore(subscribeBuildLog, getBuildLog, () => [] as string[])
 
   return (
     <div className="w-full rounded-xl border bg-card/60 p-4" role="status" aria-live="polite">
@@ -122,8 +127,17 @@ export function BuildProgress({ org, startedAt }: { org: string; startedAt: numb
         <div className="progress-indeterminate h-full w-1/3 rounded-full bg-[#48d55d]" />
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
-        Ingesting repos, issues, PRs and commits into FalkorDB. This can take a few minutes.
+        Ingesting repos, issues, PRs, commits and comment threads into FalkorDB. Repos are fetched in parallel; the slowest clone sets the time.
       </p>
+      {log.length > 0 && (
+        <ul className="mt-2 max-h-24 space-y-0.5 overflow-hidden font-mono text-[11px] leading-relaxed text-muted-foreground" aria-live="polite">
+          {log.slice(-4).map((line, i, arr) => (
+            <li key={`${i}-${line}`} className={cn("truncate", i === arr.length - 1 && "text-foreground")}>
+              {line.replace(/^\d\d:\d\d:\d\d\s/, "")}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

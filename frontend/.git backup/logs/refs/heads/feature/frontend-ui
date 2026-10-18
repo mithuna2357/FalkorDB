@@ -1,4 +1,0 @@
-0000000000000000000000000000000000000000 d317671d08337669e63b8d1a78fac5b0cc415221 mithuna2357 <mithuna2357@gmail.com> 1792250652 +0530	branch: Created from HEAD
-d317671d08337669e63b8d1a78fac5b0cc415221 9c23bff2bf20c5d9bc92d1f5f171c7afc0574a62 mithuna2357 <mithuna2357@gmail.com> 1792250659 +0530	commit: Build HandsOnRepo frontend: chat, path view, org switcher, sync
-9c23bff2bf20c5d9bc92d1f5f171c7afc0574a62 43a9462db46739c76764a392f1e6d44a8c478f56 mithuna2357 <mithuna2357@gmail.com> 1792250749 +0530	commit: Add Claude Code launch config for the dev server
-43a9462db46739c76764a392f1e6d44a8c478f56 b3ed20fe2b5202c86059e7941ae0171cc32bf301 mithuna2357 <mithuna2357@gmail.com> 1792251041 +0530	commit: Suppress hydration warnings from extension-injected attributes

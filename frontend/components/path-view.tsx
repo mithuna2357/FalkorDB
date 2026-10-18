@@ -4,7 +4,7 @@ import dynamic from "next/dynamic"
 import { Maximize2, Minimize2, Minus, Network, ScanSearch } from "lucide-react"
 import { useMemo } from "react"
 import { Badge } from "@/components/ui/badge"
-import { SUPERSEDES_COLOR, nodeColor } from "@/lib/graph-style"
+import { DERIVED_EDGE_COLOR, SUPERSEDES_COLOR, isDerivedEdge, nodeColor } from "@/lib/graph-style"
 import { cn } from "@/lib/utils"
 import type { GraphPath } from "@/lib/types"
 
@@ -23,9 +23,12 @@ export function PathView({
   onMinimize,
   onMaximize,
   onRestore,
+  overview = false,
 }: {
   path: GraphPath | null
   question: string | null
+  /** true while showing the org overview (no answer selected yet) */
+  overview?: boolean
   mode: PaneMode
   orientation: "horizontal" | "vertical"
   onMinimize: () => void
@@ -34,6 +37,8 @@ export function PathView({
 }) {
   const labels = useMemo(() => Array.from(new Set(path?.nodes.map((n) => n.label) ?? [])), [path])
   const hasSupersedes = !!path?.edges.some((e) => e.type === "SUPERSEDES")
+  const hasDerived = !!path?.edges.some((e) => isDerivedEdge(e.type))
+  const hasRead = !!path?.edges.some((e) => !isDerivedEdge(e.type) && e.type !== "SUPERSEDES")
   const empty = !path || path.nodes.length === 0
 
   // Minimised: a slim strip you click to bring the graph back.
@@ -63,7 +68,11 @@ export function PathView({
             <Network className="size-4 text-[#48d55d]" /> Graph path
           </h2>
           <p className="mt-0.5 truncate text-xs text-muted-foreground">
-            {question ? `For: ${question}` : "The path through the graph that produced an answer appears here."}
+            {overview
+              ? "Org at a glance: repositories, the most active people and who works where. Ask a question and this becomes the answer's path."
+              : question
+                ? `For: ${question}`
+                : "The path through the graph that produced an answer appears here."}
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
@@ -109,6 +118,18 @@ export function PathView({
               {label}
             </span>
           ))}
+          {hasRead && (
+            <span className="flex items-center gap-1.5 text-muted-foreground" title="Relationship read directly from GitHub">
+              <span className="h-0.5 w-4 rounded bg-slate-400/70" />
+              read from GitHub
+            </span>
+          )}
+          {hasDerived && (
+            <span className="flex items-center gap-1.5 text-muted-foreground" title="Relationship computed inside FalkorDB after ingestion (TOUCHES, COLLABORATES, CO_CHANGED, owner facts)">
+              <span className="w-4 border-t-2 border-dashed" style={{ borderColor: DERIVED_EDGE_COLOR }} />
+              derived in FalkorDB
+            </span>
+          )}
           {hasSupersedes && (
             <span className="flex items-center gap-1.5 font-medium" style={{ color: SUPERSEDES_COLOR }}>
               <span className="h-0.5 w-4 rounded" style={{ background: SUPERSEDES_COLOR }} />

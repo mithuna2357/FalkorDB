@@ -10,7 +10,12 @@ const nextConfig: NextConfig = {
     HOR_DATA_MODE: useFixtures ? "fixtures" : "live",
   },
   async rewrites() {
-    return useFixtures ? [] : [{ source: "/api/:path*", destination: `${backend}/api/:path*` }]
+    return useFixtures
+      ? []
+      : [
+          { source: "/api/:path*", destination: `${backend}/api/:path*` },
+          { source: "/auth/:path*", destination: `${backend}/auth/:path*` },
+        ]
   },
 }
 

@@ -1,7 +1,8 @@
 import askFixture from "@/fixtures/ask.json"
 import orgsFixture from "@/fixtures/orgs.json"
 import syncFixture from "@/fixtures/sync.json"
-import type { AskResponse, OrgSummary, SyncResponse } from "@/lib/types"
+import { authHeaders } from "@/lib/auth"
+import type { AskResponse, GraphPath, OrgSummary, SyncResponse } from "@/lib/types"
 
 // "fixtures" until BACKEND_URL is set (see next.config.ts). Requests go to same-origin /api/*,
 // which Next rewrites to the FastAPI backend, so no CORS setup is needed.
@@ -11,7 +12,7 @@ export const DATA_MODE: "live" | "fixtures" =
 async function request<T>(path: string, body?: unknown): Promise<T> {
   const res = await fetch(path, {
     method: body === undefined ? "GET" : "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: body === undefined ? undefined : JSON.stringify(body),
     cache: "no-store",
   })
@@ -26,6 +27,22 @@ async function request<T>(path: string, body?: unknown): Promise<T> {
 }
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
+// Live ingestion log for the "Build brain" progress card (fed by the status polling in sync()).
+type BuildLogListener = () => void
+let buildLog: string[] = []
+const buildLogListeners = new Set<BuildLogListener>()
+function setBuildLog(lines: string[]) {
+  buildLog = lines
+  buildLogListeners.forEach((l) => l())
+}
+export function subscribeBuildLog(l: BuildLogListener) {
+  buildLogListeners.add(l)
+  return () => {
+    buildLogListeners.delete(l)
+  }
+}
+export const getBuildLog = () => buildLog
 
 // In-memory org list so "Build brain" and "Sync now" behave plausibly in fixture mode.
 let fixtureOrgs: OrgSummary[] = orgsFixture.map((o) => ({ ...o }))
@@ -61,5 +78,45 @@ export async function sync(org: string): Promise<SyncResponse> {
     }
     return { ...s }
   }
-  return request<SyncResponse>("/api/sync", { org })
+  const first = await request<SyncResponse & { status?: string }>("/api/sync", { org })
+  if (first.status !== "building") return first
+  // New org: the backend started a full ingestion. Poll its status until the brain is ready (a few minutes).
+  setBuildLog([`starting ingestion for ${org}`])
+  try {
+    for (;;) {
+      await wait(2500)
+      const st = await request<{ state: string; error?: string; log?: string[]; summary?: { nodes?: number; edges?: number } | null }>(
+        `/api/ingest/${encodeURIComponent(org)}/status`,
+      )
+      if (st.log?.length) setBuildLog(st.log.slice(-6))
+      if (st.state === "done") {
+        return { added: st.summary?.nodes ?? 0, updated: 0, superseded: 0 }
+      }
+      if (st.state === "error") throw new Error(st.error ?? "ingestion failed")
+    }
+  } finally {
+    setBuildLog([])
+  }
+}
+
+
+/** Overview graph for an org (repos, most active people, who contributes where). Shown before any question is asked. */
+export async function getOrgMap(org: string): Promise<GraphPath> {
+  if (DATA_MODE === "fixtures") {
+    await wait(300)
+    return structuredClone((askFixture as AskResponse).path)
+  }
+  const res = await request<{ path: GraphPath }>(`/api/graph/${encodeURIComponent(org)}/map`)
+  return res.path
+}
+
+
+/** Example questions generated from this org's own graph (busiest area, latest revert, top contributor...). */
+export async function getSuggestions(org: string): Promise<string[]> {
+  if (DATA_MODE === "fixtures") {
+    await wait(200)
+    return []
+  }
+  const res = await request<{ questions: string[] }>(`/api/graph/${encodeURIComponent(org)}/suggest`)
+  return res.questions ?? []
 }
