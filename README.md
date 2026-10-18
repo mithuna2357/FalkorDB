@@ -32,6 +32,19 @@
 
 ---
 
+## See it move
+
+<table>
+<tr>
+<td width="50%"><img src="docs/images/demo-overview.gif" alt="Opening an organisation: the overview graph appears before you type"><br><sub><b>Open an org.</b> Repositories, the most active people and who works where, before you type anything.</sub></td>
+<td width="50%"><img src="docs/images/demo-ask.gif" alt="Asking who should review a change: ranked people, sources and the graph path"><br><sub><b>Who should review this?</b> Ranked people with their commits and reviews, every source a GitHub link, the path drawn on the right.</sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/images/demo-revert.gif" alt="Asking why something was reverted and who decided, with the Cypher that ran"><br><sub><b>Why was this reverted, and who decided?</b> Commit, revert, pull request, who merged it, and the Cypher that found it.</sub></td>
+<td width="50%"><img src="docs/images/demo-leaves.gif" alt="Asking what happens if one person leaves and who could cover"><br><sub><b>What if this person leaves?</b> Files only they touched, open work, and who could cover each area.</sub></td>
+</tr>
+</table>
+
 ## For the judges, in one minute
 
 The brief says the graph has to do real work. Here is where each requirement lives, with the file to open.
