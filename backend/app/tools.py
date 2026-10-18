@@ -12,7 +12,7 @@ from typing import Any
 
 from falkordb import Graph
 
-from .db import PathCollector, node_json, run
+from .db import PathCollector, run
 
 _WRITE_RE = re.compile(r"\b(CREATE|MERGE|DELETE|DETACH|SET|REMOVE|DROP|LOAD\s+CSV|CALL\s+db\.(?!idx\.\w+\.query|indexes|labels|relationshipTypes|propertyKeys))\b", re.I)
 _LIMIT_RE = re.compile(r"\bLIMIT\s+\d+", re.I)
@@ -386,7 +386,7 @@ def recall(g: Graph, question: str, limit: int = 3) -> dict:
         # "What did I ask earlier?" shares no words with the stored questions: fall back to the latest episodes.
         q = ("MATCH (e:Episode) RETURN e ORDER BY e.created_at DESC LIMIT $limit")
         res = g.ro_query(q, {"limit": int(limit)})
-        rows = [{"node": node_json(r[0]), "score": 0.0} for r in res.result_set]
+        rows = [{"node": {"props": r[0].properties}, "score": 0.0} for r in res.result_set]
         used = list(used or []) + [q]; fallback = True
     eps = []
     for r in rows:
